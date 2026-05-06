@@ -1,34 +1,41 @@
 import os
 import pickle
+import pandas as pd
+
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 
 from preprocessing import load_data, clean_data, encode_data
 
-# Load data
+
 df = load_data('../data/bank.csv')
 
-# Clean data
+
 df = clean_data(df)
 
-# Split BEFORE encoding (important best practice)
-X = df.drop('y', axis=1)
-y = df['y']
 
-# Train-test split
+df['y'] = df['y'].astype(str).str.strip().str.lower()
+df = df[df['y'].isin(['yes', 'no'])]
+
+y = df['y'].map({'yes': 1, 'no': 0})
+X = df.drop('y', axis=1)
+
+
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
+    X, y,
+    test_size=0.2,
+    random_state=42,
+    stratify=y
 )
 
-# Encode AFTER split (prevents leakage issues)
 X_train = encode_data(X_train)
 X_test = encode_data(X_test)
 
-# Align columns (VERY IMPORTANT)
+# Align columns
 X_test = X_test.reindex(columns=X_train.columns, fill_value=0)
 
-# Model
+
 rf = RandomForestClassifier(
     n_estimators=300,
     max_depth=12,
@@ -40,17 +47,19 @@ rf = RandomForestClassifier(
 
 rf.fit(X_train, y_train)
 
-# Predict
+
 y_pred = rf.predict(X_test)
 
-# Evaluation
 print("Model Evaluation:")
 print(classification_report(y_test, y_pred))
 
-# Save model + columns
+
 os.makedirs('../models', exist_ok=True)
 
-pickle.dump(rf, open('../models/model.pkl', 'wb'))
-pickle.dump(X_train.columns.tolist(), open('../models/columns.pkl', 'wb'))
+with open('../models/model.pkl', 'wb') as f:
+    pickle.dump(rf, f)
 
-print("Model and columns saved successfully!")
+with open('../models/columns.pkl', 'wb') as f:
+    pickle.dump(X_train.columns.tolist(), f)
+
+print("✅ Model and columns saved successfully!")
