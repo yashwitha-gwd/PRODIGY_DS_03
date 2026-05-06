@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 
 # Load model
-model = pickle.load(open('models/model.pkl', 'rb'))
+model = pickle.load(open('../models/model.pkl', 'rb'))
 columns = pickle.load(open('../models/columns.pkl', 'rb'))
 
 st.title("Customer Purchase Prediction")
