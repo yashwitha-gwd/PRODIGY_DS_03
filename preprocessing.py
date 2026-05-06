@@ -1,22 +1,33 @@
 import pandas as pd
 
+
 def load_data(path):
-    df = pd.read_csv("bank.csv", sep=';', encoding='latin-1')
+    df = pd.read_csv(path, sep=';', encoding='latin-1')
     return df
+
 
 def clean_data(df):
+    df = df.copy()
+    
     for col in df.columns:
-        df[col] = df[col].replace('unknown', df[col].mode()[0])
+        if df[col].dtype == 'object':
+            df[col] = df[col].replace('unknown', df[col].mode()[0])
+    
     return df
 
+
 def encode_data(df):
-    df['y'] = df['y'].map({'yes': 1, 'no': 0})
+    df = df.copy()
     
+    # Drop leakage column
     if 'duration' in df.columns:
         df = df.drop('duration', axis=1)
     
+    # One-hot encoding
     df = pd.get_dummies(df, drop_first=True)
+    
     return df
+
 
 def split_data(df):
     X = df.drop('y', axis=1)
