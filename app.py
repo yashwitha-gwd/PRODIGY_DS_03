@@ -1,34 +1,49 @@
 import streamlit as st
 import pandas as pd
-import pickle
 
-# Load model
-model = pickle.load(open('../models/model.pkl', 'rb'))
-columns = pickle.load(open('../models/columns.pkl', 'rb'))
+import sys
+import os
 
-st.title("Customer Purchase Prediction")
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from src.predict import predict  # ✅ use your pipeline
+
+st.set_page_config(page_title="Customer Purchase Prediction")
+
+st.title("📊 Customer Purchase Prediction")
 
 st.write("Enter customer details:")
 
-# Example inputs (keep simple for now)
+# ----------------------------
+# User Inputs (IMPORTANT: include key features)
+# ----------------------------
 age = st.slider("Age", 18, 100, 30)
 balance = st.number_input("Balance", 0, 100000, 1000)
 campaign = st.slider("Campaign Contacts", 1, 50, 2)
 
-# Create input dataframe (you may need to match your features)
+job = st.selectbox("Job", ["admin.", "technician", "services", "management"])
+marital = st.selectbox("Marital Status", ["single", "married", "divorced"])
+education = st.selectbox("Education", ["primary", "secondary", "tertiary"])
+
+# ----------------------------
+# Create input DataFrame
+# ----------------------------
 input_data = pd.DataFrame({
     'age': [age],
     'balance': [balance],
-    'campaign': [campaign]
+    'campaign': [campaign],
+    'job': [job],
+    'marital': [marital],
+    'education': [education]
 })
 
-# Predict
+# ----------------------------
+# Prediction
+# ----------------------------
 if st.button("Predict"):
-    input_data = input_data.reindex(columns=columns, fill_value=0)
+    result, prob = predict(input_data)
 
-    prob = model.predict_proba(input_data)[:,1][0]
-    
-    if prob > 0.05:
-        st.success(f"Likely to Purchase (Confidence: {prob:.2f})")
+    if prob > 0.5:
+        st.success(f"✅ {result} (Confidence: {prob:.2f})")
     else:
-        st.error(f"Unlikely to Purchase (Confidence: {prob:.2f})")
+        st.error(f"❌ {result} (Confidence: {prob:.2f})")
