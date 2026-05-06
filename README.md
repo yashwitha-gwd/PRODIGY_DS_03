@@ -22,6 +22,13 @@ This project predicts whether a customer is likely to purchase a product based o
 
 ## 📊 Model Performance
 Accuracy and classification report are shown after training.
+🧪 How It Works
+User enters customer details (age, job, balance, etc.)
+Data is passed to the prediction pipeline
+Preprocessing and encoding are applied
+Model predicts probability of purchase
+Result is displayed in the UI
+
 
 ## 👩‍💻 Author
 Yashwitha N L
