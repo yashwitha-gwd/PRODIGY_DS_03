@@ -1,7 +1,7 @@
 import pandas as pd
 
 def load_data(path):
-    df = pd.read_csv("C:\\Users\\YASHWITHA\\OneDrive\\Desktop\\bank-marketing-project\\data\\bank.csv", sep=';', encoding='latin-1')
+    df = pd.read_csv("bank.csv", sep=';', encoding='latin-1')
     return df
 
 def clean_data(df):
